@@ -28,4 +28,22 @@ describe('LDJClient', () => {
 		stream.emit('data', '{"foo":');
 		process.nextTick(() => stream.emit('data', '"bar"}\n'));
 	});
+	
+	//Add a unit test for a single message that is split over two or more data events from the stream
+	it('should emit a message event from split data events', done => {
+		client.on('message', message => {
+			assert.deepEqual(message, {foo: 'bar'});
+				done();
+		});
+		stream.emit('data', '{"foo":');
+		process.nextTick(() => stream.emit('data', '"bar"}\n'));
+	});
+	//Add a unit test that passes in null to the LDJClient constructor, and asserts that an error is thrown
+	it('Si se le pasa un parametro null al constructor dara un error', done => {
+    		assert.throws(() => {
+      			new LDJClient(null);
+    		});
+    		done();
+  	});
+
 });

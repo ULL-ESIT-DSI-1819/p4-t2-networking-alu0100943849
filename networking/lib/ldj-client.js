@@ -2,6 +2,7 @@
 const EventEmitter = require('events').EventEmitter;
 class LDJClient extends EventEmitter {
 	constructor(stream) {
+		if(stream == null) throw new Error("Stream vacio");
 		super();
 		let buffer = '';
 		stream.on('data', data => {
