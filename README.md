@@ -10,13 +10,13 @@ Las conexiones de socket TCP constan de dos endpoints, uno de ellos se enlaza a 
 
 En Node.js son proporcionadas por el módulo net
 
-	'use strict'​;
-​	​const​
-​ 	net = require(​'net'​),
-​	server = net.createServer(connection => {
-​		// Use the connection object for data transfer.​
-​	});
-​	server.listen(60300);
+	'use strict'
+	const
+	net = require('net'),
+	server = net.createServer(connection => {
+		// Use the connection object for data transfer.
+	});
+	server.listen(60300);
 
 El metodo net.createServer toma un callback y retorna un objeto servidor. Node-js invoca el callback cuadno otro endpoint se conecta.
 
