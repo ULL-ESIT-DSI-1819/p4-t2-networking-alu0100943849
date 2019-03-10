@@ -244,6 +244,134 @@ La función de JavaScript setTimeout toma dos parámetros: una función para inv
 
 El error inesperado token nos dice que el mensaje no era un JSON completo y válido. Nuestro cliente intentó enviar la mitad de un mensaje a JSON.parse, que solo espera cadenas JSON completas y con el formato correcto como entrada.
 
+## Extendiendo Clases del Núcleo en Módulos Customizables
+
+El programa Node.js que hicimos en la última apartado **Probando la funcionalidad de la aplicación de red** expuso una falla en nuestro código de cliente; Es decir, que no termina sus entradas. Cualquier mensaje que llegue como múltiples eventos de datos lo bloqueará.
+
+Así que realmente el programa cliente tiene dos tareas que hacer. Una es almacenar los datos entrantes en mensajes. La otra es manejar cada mensaje cuando llega.
+
+En lugar de agrupar estos dos trabajos en un solo programa Node.js, lo correcto es convertir al menos uno de ellos en un módulo Node.js.
+
+### Extendiendo EventEmitter
+
+Para liberar al programa cliente del peligro de separar mensajes JSON, implementaremos un módulo cliente LDJ.
+
+### Herencia en Node
+
+Primero echemos un vistazo a cómo Node.js hace la herencia. El siguiente código configura LDJClient para heredar de EventEmitter.
+
+	const​ EventEmitter = require(​'events'​).EventEmitter;
+​	​class​ LDJClient ​extends​ EventEmitter {
+​		​constructor​(stream) {
+​			​super​();
+​		}
+​	}
+
+Dentro del constructor llamamos a super() para invocar al propio constructor de EventEmitter. Siempre que esté implementando una clase que extienda de otra clase, debe comenzar por llamar super, con los argumentos de constructor apropiados para ello.
+
+### Eventos de datos de buffering
+
+Ahora vamos a usar el parametro stream para recuperar y enviar la entrada. El objetivo es tomar los datos de entrada en bruto del stream y convertirlo en un mensaje.
+
+El siguiente constructor actualizado. Anexa fragmentos de datos entrantes a una cadena de búfer en ejecución y explora los finales de línea.
+
+​	constructor​(stream) {
+​		​super​();
+​		let​ buffer = ​''​;
+​		stream.on(​'data'​, data => {
+​			buffer += data;
+​			let​ boundary = buffer.indexOf(​'​​\​​n'​);
+​			​while​ (boundary !== -1) {
+​				​const​ input = buffer.substring(0, boundary);
+​				buffer = buffer.substring(boundary + 1);
+​				this​.emit(​'message'​, JSON.parse(input));
+​				boundary = buffer.indexOf(​'​​\​​n'​);
+​			}
+​		});
+​	}
+
+Comenzamos llamando a super , como antes, y luego configuramos una variable de cadena llamada buffer para capturar los datos entrantes. A continuación, usamos stream.on para manejar eventos de datos.
+
+Agregamos datos sin procesar al final del búfer y luego buscamos los mensajes completos desde el frente. Cada cadena de mensaje se envía a través de JSON.parse y, finalmente, es emitida por el LDJClient como un evento de mensaje a través de this.emit.
+
+### Exportando Funcionalidad en un Módulo
+
+Creamos un directorio llamado lib y en el creamos el archivo ldj-client.js e insertamos en el
+
+	'use strict';
+	const EventEmitter = require('events').EventEmitter;
+	class LDJClient extends EventEmitter {
+		constructor(stream) {
+			super();
+			let buffer = '';
+			stream.on('data', data => {
+				buffer += data;
+				let boundary = buffer.indexOf('\n');
+				while (boundary !== -1) {
+					const input = buffer.substring(0, boundary);
+					buffer = buffer.substring(boundary + 1);
+					this.emit('message', JSON.parse(input));
+					boundary = buffer.indexOf('\n');
+				}
+			});
+		}
+
+		static connect(stream) {
+			return new LDJClient(stream);
+		}
+	}
+
+	module.exports = LDJClient;
+
+### Importando un Módulo Node.js personalizado
+
+Es hora de hacer uso de nuestro módulo personalizado. Modifiquemos el cliente para usarlo en lugar de leer directamente desde la secuencia TCP.
+
+creamos un archivo net-watcher-ldj-client.js e introducimos
+
+	'use strict';
+	const netClient = require('net').connect({port: 60300});
+	const ldjClient = require('./lib/ldj-client.js').connect(netClient);
+
+	ldjClient.on('message', message => {
+		if (message.type === 'watching') {
+			console.log(`Now watching: ${message.file}`);
+		} else if (message.type === 'changed') {
+			console.log(`File changed: ${new Date(message.timestamp)}`);
+		} else {
+			throw Error(`Unrecognized message type: ${message.type}`);
+		}
+	});
+
+este programa se basa en el módulo ldj-client para producir eventos de mensajes.
+
+Para asegurarse de que resuelve el problema del mensaje dividido, ejecutemos el servicio de prueba:
+
+	$ ​​node​​ ​​test-json-service.js
+
+Y en una terminal diferente
+
+	$ ​​node​​ ​​net-watcher-ldj-client.js
+
+![json-client-split-message-solved](screenshots/json-client-split-message-solved.png)
+
+## Desarrollando Pruebas Unitarias con Mocha
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
