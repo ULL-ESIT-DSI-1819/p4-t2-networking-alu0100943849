@@ -91,8 +91,38 @@ Realizamos los mismos pasos que el apartado anterior **Conectándose a un servid
 
 	$ nc -U /tmp/watcher.sock
 
+Los sockets Unix pueden ser más rápidos que los sockets TCP porque no requieren invocar hardware de red. Sin embargo, por naturaleza están confinados a la máquina.
 
+## Implementado un protocolo de mensajería
 
+Un protocolo es un conjunto de reglas que define cómo se comunican los endpoints en un sistema. Nosotros crearemos un protocolo basado en pasar mensajes JSON a través de TCP.
+
+Al implementaremos endpoints de cliente y servidor que utilizan nuestro nuevo protocolo basado en JSON nos dará la oportunidad de desarrollar casos de prueba y refactorizar nuestro código en módulos reutilizables.
+
+### Serialización de mensajes con JSON
+
+Vamos a desarrollar el protocolo de paso de mensajes que utiliza JSON para serializar los mensajes. Cada mensaje es un objeto serializado JSON, que es un hash de pares clave-valor. Aquí hay un ejemplo de objeto JSON con dos pares clave-valor:
+
+	{​"key"​:​"value"​,​"anotherKey"​:​"anotherValue"​}
+
+El servicio net-watcher que hemos estado desarrollando en este capítulo envía dos tipos de mensajes que necesitamos convertir a JSON:
+
+- Cuando la conexión se establece por primera vez, el cliente recibe la cadena *Now watching "target.txt" for changes...*
+- Cuando el archivo de destino cambia, el cliente recibe la cadena *File changed: Sun Mar 10 2019 09:08:02 GMT-0700 (PDT)*
+
+Codificaremos el primer tipo de mensaje de esta manera:
+
+	{​"type"​:​"watching"​,​"file"​:​"target.txt"​}
+
+El campo de tipo indica que este es un mensaje de observación: el archivo especificado ahora se está viendo.
+
+El segundo tipo de mensaje se codifica de esta manera:
+
+	{​"type"​:​"changed"​,​"timestamp"​:1358175733785}
+
+Aquí el campo type anuncia que el archivo de destino ha cambiado. El campo timestamp contiene un valor entero que representa el número de milisegundos
+
+### Cambiando a mensajes JSON
 
 
 
