@@ -50,11 +50,38 @@ Creamos un fichero que contenga lo siguiente:
 		});
 	}).listen(60300,() => console.log('Listening for subscribers...'));
 
-Al inspecionar el callback dado por la funcion createServer. Esta función hace tres consas:
+Al inspecionar el callback dado por la función createServer vemos que hace tres consas:
 - Informa que la conexión se ha establecido (tanto para el cliente con connection.write y a la consola).
 - Escucha al archivo por si se produjeron cambios. Este callback envía información de cambio al cliente usando connection.write.
 - Escuha por el evento de cierre de conexión para reportar que el suscriptor se ha desconectado y dejar de observar el fichero con watcher.close.
 
 ### Conectándose a un servidor TCP con Netcat 
+
+Para comporbar que todo funciona como queremos abrimos tres terminales.
+
+En la primera introducimos
+
+	$ ​​watch​​ ​​-n​​ ​​1​​ ​​touch​​ ​​target.txt​
+
+para tocar el archivo en intervalos de un segundo
+
+En la segunda corremos el programa
+
+	$ node​​ ​​net-watcher.js​​ ​​target.txt​
+
+En la tercera
+
+	$ nc​​ ​​localhost​​ ​​60300​
+
+para conectarnos al servicio de escucha del puerto TCP 60300 proporcionado por net-watcher.js
+
+![net-watcher](screenshots/net-watcher.png)
+
+
+
+
+
+
+
 
 
