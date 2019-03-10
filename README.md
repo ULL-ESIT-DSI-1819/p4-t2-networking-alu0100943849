@@ -91,6 +91,8 @@ Realizamos los mismos pasos que el apartado anterior **Conectándose a un servid
 
 	$ nc -U /tmp/watcher.sock
 
+![net-watcher-unix](screenshots/net-watcher-unix.png)
+
 Los sockets Unix pueden ser más rápidos que los sockets TCP porque no requieren invocar hardware de red. Sin embargo, por naturaleza están confinados a la máquina.
 
 ## Implementado un protocolo de mensajería
