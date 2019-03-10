@@ -77,15 +77,19 @@ para conectarnos al servicio de escucha del puerto TCP 60300 proporcionado por n
 
 ![net-watcher](screenshots/net-watcher.png)
 
-#### Escuchando en Unix Sockets
+### Escuchando en Unix Sockets
 
 Para ver como el modulo net usa los socket unix modificamos el programa net-watcher sustituyendo
+
 	.listen(60300,() => console.log('Listening for subscribers...'));
-por 
+
+por
+ 
 	.listen('/tmp/watcher.sock', () => console.log('Listening for subscribers...'))
 
-realizamos los mismos pasos que el apartado anterior **Conectándose a un servidor TCP con Netcat**, pero esta vez ejecutaremos:
-	nc -U /tmp/watcher.sock
+Realizamos los mismos pasos que el apartado anterior **Conectándose a un servidor TCP con Netcat**, pero esta vez ejecutaremos:
+
+	$ nc -U /tmp/watcher.sock
 
 
 
