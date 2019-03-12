@@ -357,39 +357,59 @@ Y en una terminal diferente
 
 ## Desarrollando Pruebas Unitarias con Mocha
 
+Mocha es un popular frame de prueba multiparadigma para Node.js. Cuenta con varios estilos diferentes para describir sus pruebas. Nosotros usaremos el estilo de desarrollo impulsado por el comportamiento (BDD).
 
+### instalación de mocha mediante npm
 
+Para la instalación de mocha hay que usar el archivo *package.json* para establecer las dependencias de desarrollo, para ello ejecutamos en nuestra terminal
 
+	$ npm init -y
 
+que nos creará el archvio predeterminado, ahora instalaremos mocha ejecutando
 
+	$ npm install ​​--save-dev​​ ​​--save-exact​​ ​​mocha@3.4.2​
 
+Cuando el comando termine en el archivo *package.json* encontraremos 
 
+	"devDependencies": {
+		"mocha": "3.4.2"	
+	}
 
+## Escribiendo pruebas unitarias con mocha
 
+Para crear la prueba unitaria crearemos un archivo llamado *ldj-client-test.js* en una carpeta llamada test, esta carpeta se crea por convenio. Editamos el archivo añadiendo:
 
+	'use strict';
+	const assert = require('assert');
+	const EventEmitter = require('events').EventEmitter;
+	const LDJClient = require('../lib/ldj-client.js');
 
+	describe('LDJClient', () => {
+		let stream = null;
+		let client = null;
 
+		beforeEach(() => {
+			stream = new EventEmitter();
+			client = new LDJClient(stream);
+		});
 
+		it('should emit a message event from a single data event', done => {
+			client.on('message', message => {
+				assert.deepEqual(message, {foo: 'bar'});
+				done();
+			});
+			stream.emit('data', '{"foo":"bar"}\n');
+		});
+	});
 
+Para crear el contexto de la prueba se utiliza el método *describe* con el nombre de la prueba. Despues creamos deo variables *let* ina para isntanciar LDJClient y la otra para el EventEmitter y en *beforeEach* asignamos una nueva instancia a cada variable y finalmente se llama al *if* para comprobar el comportamiento de la clase.
 
+## Ejecutando pruebas unitarias de mocha con npm
 
+Para ejecutar mocha usando npm primero tenemos que añadir el la seccion *script* del package.json mocha, añadimos:
 
+	"scripts": {
+		"test": "mocha"
+	},
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Los script son comandos que se invocan desde la linea de comandos usando *npm run* en nuestro caso *npm run test*.

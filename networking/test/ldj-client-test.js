@@ -19,15 +19,6 @@ describe('LDJClient', () => {
 		});
 		stream.emit('data', '{"foo":"bar"}\n');
 	});
-
-	it('should emit a message event from split data event', done => {
-		client.on('message', message => {
-			assert.deepEqual(message, {foo: 'bar'});
-			done();
-		});
-		stream.emit('data', '{"foo":');
-		process.nextTick(() => stream.emit('data', '"bar"}\n'));
-	});
 	
 	//Add a unit test for a single message that is split over two or more data events from the stream
 	it('should emit a message event from split data events', done => {
@@ -45,5 +36,13 @@ describe('LDJClient', () => {
     		});
     		done();
   	});
+
+	//Write a test case that sends a data event that is not JSON. What do you think on how to manage this case?
+	it('Si el mensaje no es un JSON se mostrará una excepcion', done => {
+		assert.throws(() => {
+			stream.emit('data', '{"foo:\n');
+		});
+		done();
+	});
 
 });
