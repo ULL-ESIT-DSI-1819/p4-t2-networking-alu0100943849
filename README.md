@@ -413,3 +413,9 @@ Para ejecutar mocha usando npm primero tenemos que añadir el la seccion *script
 	},
 
 Los script son comandos que se invocan desde la linea de comandos usando *npm run* en nuestro caso *npm run test*.
+
+![mocha](screenshots/mocha.png)
+
+## Travis
+
+[![Build Status](https://travis-ci.com/ULL-ESIT-DSI-1819/p4-t2-networking-alu0100943849.svg?branch=master)](https://travis-ci.com/ULL-ESIT-DSI-1819/p4-t2-networking-alu0100943849)
